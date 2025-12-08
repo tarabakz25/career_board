@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ダッシュボード | Career Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="logo">Career Board</div>
+      <div class="session" id="sessionArea">
+        <span id="userEmail">ユーザー</span>
+        <a class="ghost" href="/mypage">マイページ</a>
+        <a class="ghost" href="/adminpage" id="adminLink" style="display:none;">管理者</a>
+        <button id="logoutBtn" class="ghost">ログアウト</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="searchPanel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">求人一覧</p>
+            <h2>あなたに合うポジションを検索</h2>
+          </div>
+          <div class="filters">
+            <input id="searchKeyword" type="search" placeholder="キーワード (職種 / 企業)" />
+            <input id="searchLocation" type="search" placeholder="勤務地" />
+            <input id="searchSalary" type="number" min="0" step="500000" placeholder="最低給与(円)" />
+            <button id="searchBtn" class="hover:scale-105 hover:shadow-lg transition-transform duration-150">検索</button>
+          </div>
+        </div>
+        <div id="jobsList" class="jobs-grid"></div>
+      </section>
+
+      <section class="panel" id="detailPanel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">求人詳細</p>
+            <h2 id="detailTitle">求人を選択してください</h2>
+          </div>
+        </div>
+        <div class="card">
+          <p id="detailMeta" class="muted"></p>
+          <p id="detailDescription" class="body"></p>
+          <div id="detailActions"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="jobCardTemplate">
+    <article class="job-card hover:-translate-y-1 hover:shadow-xl transition duration-200">
+      <div class="job-meta">
+        <p class="eyebrow company"></p>
+        <h3 class="title"></h3>
+        <p class="muted location"></p>
+        <p class="muted salary"></p>
+        <p class="muted deadline"></p>
+      </div>
+      <div class="job-actions">
+        <button class="ghost view hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">詳細</button>
+        <button class="apply hover:scale-105 hover:shadow-lg transition-transform duration-150">応募</button>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="/career_dashboard.js"></script>
+</body>
+</html>

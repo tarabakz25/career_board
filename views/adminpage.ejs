@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>管理者ページ | Career Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="logo">Career Board</div>
+      <div class="session" id="sessionArea">
+        <span id="userEmail">管理者</span>
+        <a class="ghost" href="/career_dashboard">求人一覧</a>
+        <a class="ghost" href="/mypage">マイページ</a>
+        <button id="logoutBtn" class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">ログアウト</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="adminPanel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">管理者</p>
+            <h2>求人の作成・編集</h2>
+          </div>
+        </div>
+        <div class="admin-grid">
+          <form id="jobForm" class="form">
+            <input type="hidden" name="id" />
+            <label>タイトル <input name="title" required /></label>
+            <label>会社名 <input name="company" required /></label>
+            <label>勤務地 <input name="location" /></label>
+            <label>給与下限 <input name="salaryMin" type="number" step="500000" /></label>
+            <label>給与上限 <input name="salaryMax" type="number" step="500000" /></label>
+            <label>募集期限 <input name="deadline" type="date" /></label>
+            <label>仕事内容 <textarea name="description" rows="4"></textarea></label>
+            <div class="form-row">
+              <button type="submit">保存</button>
+              <button type="button" class="ghost" id="resetJobForm">リセット</button>
+            </div>
+            <div id="jobFormMsg" class="message"></div>
+          </form>
+          <div>
+            <div class="table" id="adminJobs"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/adminpage.js"></script>
+</body>
+</html>

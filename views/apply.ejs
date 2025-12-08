@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>求人詳細 | Career Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="logo">Career Board</div>
+      <div class="session" id="sessionArea">
+        <span id="userEmail">ユーザー</span>
+        <a class="ghost" href="/career_dashboard">求人一覧</a>
+        <a class="ghost" href="/mypage">マイページ</a>
+        <button id="logoutBtn" class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">ログアウト</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel two-col">
+        <div>
+          <p class="eyebrow">求人詳細</p>
+          <h1 id="jobTitle">読み込み中...</h1>
+          <p id="jobMeta" class="muted"></p>
+          <p id="jobDescription" class="body"></p>
+        </div>
+        <div class="card">
+          <p class="eyebrow">応募</p>
+          <h3>この求人に応募する</h3>
+          <div id="applyMessage" class="message"></div>
+          <div class="form-row" id="applyActions"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/apply.js"></script>
+</body>
+</html>

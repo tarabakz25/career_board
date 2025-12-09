@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
@@ -21,7 +22,7 @@ const app = express();
 // JSON parse error handling
 app.use(
 	express.json({
-		verify: (_req, _res, buf) => {
+		verify: (_req: Request, _res: Response, buf: Buffer) => {
 			try {
 				JSON.parse(buf.toString());
 			} catch {

@@ -9,49 +9,113 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <div class="logo">Career Board</div>
-      <div class="session" id="sessionArea">
-        <span id="userEmail">管理者</span>
-        <a class="ghost" href="/career_dashboard">求人一覧</a>
-        <a class="ghost" href="/mypage">マイページ</a>
-        <button id="logoutBtn" class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">ログアウト</button>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <header class="sticky top-0 z-50 w-full border-b border-cat-surface1 bg-cat-base/80 backdrop-blur-md">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="logo font-bold text-xl text-cat-mauve tracking-tight">Career Board</div>
+      <div class="session flex items-center gap-4 text-sm" id="sessionArea">
+        <span id="userEmail" class="text-cat-subtext0 font-bold hidden sm:inline">管理者</span>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/career_dashboard">求人一覧</a>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/mypage">マイページ</a>
+        <button id="logoutBtn" class="bg-cat-surface1 text-cat-text px-3 py-1.5 rounded-lg hover:bg-cat-surface2 transition-colors font-bold text-xs">ログアウト</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="panel" id="adminPanel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">管理者</p>
-            <h2>求人の作成・編集</h2>
-          </div>
-        </div>
-        <div class="admin-grid">
-          <form id="jobForm" class="form">
+  <main class="container mx-auto px-4 py-8">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+      <div>
+        <p class="text-xs font-bold text-cat-red uppercase tracking-wider mb-1">管理者コンソール</p>
+        <h2 class="text-2xl font-bold text-cat-text">求人の作成・編集</h2>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-8" id="adminPanel">
+      
+      <!-- Form Section -->
+      <section class="lg:col-span-4">
+        <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-6 shadow-lg sticky top-24">
+          <h3 class="text-lg font-bold text-cat-text mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cat-mauve"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            編集フォーム
+          </h3>
+          
+          <form id="jobForm" class="flex flex-col gap-4">
             <input type="hidden" name="id" />
-            <label>タイトル <input name="title" required /></label>
-            <label>会社名 <input name="company" required /></label>
-            <label>勤務地 <input name="location" /></label>
-            <label>給与下限 <input name="salaryMin" type="number" step="500000" /></label>
-            <label>給与上限 <input name="salaryMax" type="number" step="500000" /></label>
-            <label>募集期限 <input name="deadline" type="date" /></label>
-            <label>仕事内容 <textarea name="description" rows="4"></textarea></label>
-            <div class="form-row">
-              <button type="submit">保存</button>
-              <button type="button" class="ghost" id="resetJobForm">リセット</button>
+            
+            <label class="block">
+              <span class="text-xs font-bold text-cat-subtext0 block mb-1">タイトル</span>
+              <input name="title" required class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+            </label>
+            
+            <label class="block">
+              <span class="text-xs font-bold text-cat-subtext0 block mb-1">会社名</span>
+              <input name="company" required class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+            </label>
+            
+            <label class="block">
+              <span class="text-xs font-bold text-cat-subtext0 block mb-1">勤務地</span>
+              <input name="location" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+            </label>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <label class="block">
+                <span class="text-xs font-bold text-cat-subtext0 block mb-1">給与下限 (円)</span>
+                <input name="salaryMin" type="number" step="500000" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-cat-subtext0 block mb-1">給与上限 (円)</span>
+                <input name="salaryMax" type="number" step="500000" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+              </label>
             </div>
-            <div id="jobFormMsg" class="message"></div>
+            
+            <label class="block">
+              <span class="text-xs font-bold text-cat-subtext0 block mb-1">募集期限</span>
+              <input name="deadline" type="date" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+            </label>
+            
+            <label class="block">
+              <span class="text-xs font-bold text-cat-subtext0 block mb-1">仕事内容</span>
+              <textarea name="description" rows="4" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-3 py-2 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all"></textarea>
+            </label>
+            
+            <div class="grid grid-cols-2 gap-3 mt-2">
+              <button type="submit" class="bg-cat-mauve text-cat-base font-bold py-2.5 rounded-lg hover:bg-cat-mauve/90 transition-all shadow-lg shadow-cat-mauve/20">保存</button>
+              <button type="button" id="resetJobForm" class="bg-cat-surface1 text-cat-text font-bold py-2.5 rounded-lg hover:bg-cat-surface2 transition-all">リセット</button>
+            </div>
+            
+            <div id="jobFormMsg" class="min-h-[20px] text-xs font-bold text-center"></div>
           </form>
-          <div>
-            <div class="table" id="adminJobs"></div>
-          </div>
         </div>
       </section>
-    </main>
-  </div>
+
+      <!-- List Section -->
+      <section class="lg:col-span-8">
+        <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl overflow-hidden shadow-lg">
+           <div class="p-4 border-b border-cat-surface1 bg-cat-surface1/20 flex justify-between items-center">
+             <h3 class="font-bold text-cat-text">登録済み求人</h3>
+             <span class="text-xs text-cat-subtext0 bg-cat-surface1 px-2 py-1 rounded">※クリックして編集</span>
+           </div>
+           
+           <div class="overflow-x-auto">
+             <div id="adminJobs" class="min-w-full divide-y divide-cat-surface1 text-sm">
+               <!-- Table content will be injected here. Note: The existing JS might expect div structure or table structure. 
+                    The previous layout used divs with .table-row class. I should preserve that structure or update the JS if I change it to real table.
+                    Wait, let's check adminpage.js first. But I can't check it easily now. 
+                    The previous HTML used <div class="table"><div class="table-row">...</div></div>. 
+                    The previous CSS had: .table-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 160px; ... }
+                    
+                    I should reconstruct this grid using Tailwind classes.
+               -->
+             </div>
+           </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
 
   <script type="module" src="/adminpage.js"></script>
 </body>

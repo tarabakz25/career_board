@@ -9,63 +9,79 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <div class="logo">Career Board</div>
-      <div class="session" id="sessionArea">
-        <span id="userEmail">ユーザー</span>
-        <a class="ghost" href="/mypage">マイページ</a>
-        <a class="ghost" href="/adminpage" id="adminLink" style="display:none;">管理者</a>
-        <button id="logoutBtn" class="ghost">ログアウト</button>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <header class="sticky top-0 z-50 w-full border-b border-cat-surface1 bg-cat-base/80 backdrop-blur-md">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="logo font-bold text-xl text-cat-mauve tracking-tight">Career Board</div>
+      <div class="session flex items-center gap-4 text-sm" id="sessionArea">
+        <span id="userEmail" class="text-cat-subtext0 font-bold hidden sm:inline">ユーザー</span>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/mypage">マイページ</a>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/adminpage" id="adminLink" style="display:none;">管理者</a>
+        <button id="logoutBtn" class="bg-cat-surface1 text-cat-text px-3 py-1.5 rounded-lg hover:bg-cat-surface2 transition-colors font-bold text-xs">ログアウト</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="panel" id="searchPanel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">求人一覧</p>
-            <h2>あなたに合うポジションを検索</h2>
-          </div>
-          <div class="filters">
-            <input id="searchKeyword" type="search" placeholder="キーワード (職種 / 企業)" />
-            <input id="searchLocation" type="search" placeholder="勤務地" />
-            <input id="searchSalary" type="number" min="0" step="500000" placeholder="最低給与(円)" />
-            <button id="searchBtn" class="hover:scale-105 hover:shadow-lg transition-transform duration-150">検索</button>
-          </div>
+  <main class="container mx-auto px-4 py-8 space-y-8">
+    
+    <!-- Search Panel -->
+    <section class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-6 shadow-lg" id="searchPanel">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+        <div>
+          <p class="text-xs font-bold text-cat-sky uppercase tracking-wider mb-1">求人一覧</p>
+          <h2 class="text-2xl font-bold text-cat-text">あなたに合うポジションを検索</h2>
         </div>
-        <div id="jobsList" class="jobs-grid"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 filters">
+        <input id="searchKeyword" type="search" placeholder="キーワード (職種 / 企業)" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-2.5 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+        <input id="searchLocation" type="search" placeholder="勤務地" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-2.5 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+        <input id="searchSalary" type="number" min="0" step="500000" placeholder="最低給与(円)" class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-2.5 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all" />
+        <button id="searchBtn" class="bg-cat-mauve text-cat-base font-bold px-6 py-2.5 rounded-lg hover:bg-cat-mauve/90 transition-all shadow-lg shadow-cat-mauve/20 active:scale-95">検索</button>
+      </div>
+    </section>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Jobs List -->
+      <section class="lg:col-span-2">
+        <div id="jobsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Jobs will be injected here -->
+        </div>
       </section>
 
-      <section class="panel" id="detailPanel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">求人詳細</p>
-            <h2 id="detailTitle">求人を選択してください</h2>
+      <!-- Detail Panel (Sticky on large screens) -->
+      <section class="hidden lg:block lg:sticky lg:top-24 h-fit" id="detailPanel">
+        <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-6 shadow-lg">
+          <div class="mb-4">
+            <p class="text-xs font-bold text-cat-sky uppercase tracking-wider mb-1">求人詳細</p>
+            <h2 id="detailTitle" class="text-xl font-bold text-cat-text">求人を選択してください</h2>
+          </div>
+          <div class="space-y-4">
+            <p id="detailMeta" class="text-sm text-cat-subtext0"></p>
+            <p id="detailDescription" class="text-cat-overlay2 text-sm leading-relaxed min-h-[100px]"></p>
+            <div id="detailActions" class="pt-4 border-t border-cat-surface1"></div>
           </div>
         </div>
-        <div class="card">
-          <p id="detailMeta" class="muted"></p>
-          <p id="detailDescription" class="body"></p>
-          <div id="detailActions"></div>
-        </div>
       </section>
-    </main>
-  </div>
+    </div>
+
+  </main>
 
   <template id="jobCardTemplate">
-    <article class="job-card hover:-translate-y-1 hover:shadow-xl transition duration-200">
-      <div class="job-meta">
-        <p class="eyebrow company"></p>
-        <h3 class="title"></h3>
-        <p class="muted location"></p>
-        <p class="muted salary"></p>
-        <p class="muted deadline"></p>
+    <article class="job-card bg-cat-surface0 border border-cat-surface1 rounded-xl p-5 hover:border-cat-mauve/50 transition-all hover:shadow-lg flex flex-col gap-3 group h-full">
+      <div class="flex-grow">
+        <p class="company text-xs font-bold text-cat-sky mb-1"></p>
+        <h3 class="title text-lg font-bold text-cat-text mb-2 group-hover:text-cat-mauve transition-colors"></h3>
+        <div class="flex flex-wrap gap-2 text-xs text-cat-subtext0 mb-3">
+          <span class="location flex items-center gap-1 bg-cat-surface1/50 px-2 py-1 rounded"></span>
+          <span class="salary flex items-center gap-1 bg-cat-surface1/50 px-2 py-1 rounded"></span>
+        </div>
+        <p class="deadline text-xs text-cat-overlay0"></p>
       </div>
-      <div class="job-actions">
-        <button class="ghost view hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">詳細</button>
-        <button class="apply hover:scale-105 hover:shadow-lg transition-transform duration-150">応募</button>
+      <div class="job-actions grid grid-cols-2 gap-2 mt-auto pt-3 border-t border-cat-surface1/50">
+        <button class="view text-cat-text bg-cat-surface1 hover:bg-cat-surface2 font-bold py-2 rounded-lg text-sm transition-colors">詳細</button>
+        <button class="apply text-cat-base bg-cat-blue hover:bg-cat-blue/90 font-bold py-2 rounded-lg text-sm transition-colors shadow-lg shadow-cat-blue/20">応募</button>
       </div>
     </article>
   </template>

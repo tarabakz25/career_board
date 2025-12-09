@@ -57,26 +57,38 @@ async function loadJobs() {
 async function renderAdminJobs() {
 	const container = document.getElementById("adminJobs");
 	const header = document.createElement("div");
-	header.className = "table-row table-head";
+	header.className =
+		"hidden md:grid md:grid-cols-5 gap-4 font-bold p-4 bg-cat-surface1/20 border-b border-cat-surface1 text-cat-text items-center";
 	header.innerHTML =
 		"<div>タイトル</div><div>会社</div><div>勤務地</div><div>締切</div><div>操作</div>";
 	container.innerHTML = "";
 	container.appendChild(header);
 	state.jobs.forEach((job) => {
 		const row = document.createElement("div");
-		row.className = "table-row";
-		row.innerHTML = `<div>${job.title}</div><div>${job.company}</div><div>${job.location || "-"}</div><div>${formatDate(job.deadline)}</div>`;
+		row.className =
+			"grid grid-cols-1 md:grid-cols-5 gap-2 md:gap-4 p-4 border-b border-cat-surface1 items-start md:items-center hover:bg-cat-surface1/10 transition-colors";
+		
+		// For mobile, we might want labels or a different layout, but for now let's keep it simple with grid
+		row.innerHTML = `
+            <div class="font-bold text-cat-text md:font-normal">${job.title}</div>
+            <div class="text-cat-subtext0"><span class="md:hidden text-xs text-cat-overlay0 mr-2">会社:</span>${job.company}</div>
+            <div class="text-cat-subtext0"><span class="md:hidden text-xs text-cat-overlay0 mr-2">勤務地:</span>${job.location || "-"}</div>
+            <div class="text-cat-subtext0"><span class="md:hidden text-xs text-cat-overlay0 mr-2">締切:</span>${formatDate(job.deadline)}</div>
+        `;
+		
 		const actions = document.createElement("div");
-		actions.style.display = "flex";
-		actions.style.gap = "6px";
+		actions.className = "flex gap-2 mt-2 md:mt-0";
+		
 		const editBtn = document.createElement("button");
-		editBtn.className = "ghost";
+		editBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-blue text-cat-base hover:bg-cat-blue/90 transition-colors";
 		editBtn.textContent = "編集";
 		editBtn.onclick = () => fillJobForm(job);
+		
 		const delBtn = document.createElement("button");
-		delBtn.className = "ghost";
+		delBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-surface1 text-cat-red hover:bg-cat-surface2 transition-colors";
 		delBtn.textContent = "削除";
 		delBtn.onclick = () => deleteJob(job.id);
+		
 		actions.append(editBtn, delBtn);
 		row.appendChild(actions);
 		container.appendChild(row);

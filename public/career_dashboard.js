@@ -90,7 +90,9 @@ function renderJobs() {
 			window.location.href = `/apply?id=${job.id}`;
 		});
 		const applyBtn = clone.querySelector(".apply");
-		applyBtn.addEventListener("click", () => apply(job.id));
+		applyBtn.addEventListener("click", () => {
+			window.location.href = `/apply_form?id=${job.id}`;
+		});
 		if (!state.user || state.user.role === "admin") {
 			applyBtn.disabled = true;
 			applyBtn.textContent =
@@ -107,19 +109,6 @@ function renderJobs() {
 		}
 		jobsListEl.appendChild(clone);
 	});
-}
-
-async function apply(jobId) {
-	try {
-		await api(`/api/jobs/${jobId}/apply`, {
-			method: "POST",
-			body: JSON.stringify({}),
-		});
-		state.user.appliedJobId = jobId;
-		renderJobs();
-	} catch (e) {
-		alert(e.message);
-	}
 }
 
 logoutBtn.addEventListener("click", async () => {

@@ -36,12 +36,15 @@ model Job {
 }
 
 model Application {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("user_id")
-  jobId     Int      @map("job_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique @map("user_id")
+  jobId        Int      @map("job_id")
+  fullName     String   @map("full_name")
+  phone        String
+  coverLetter  String?  @map("cover_letter")
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job          Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@map("applications")
 }

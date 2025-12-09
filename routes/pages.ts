@@ -39,6 +39,15 @@ router.get("/apply", (req, res) => {
 	res.render("apply");
 });
 
+router.get("/apply_form", (req, res) => {
+	const cookies = parseCookies(req.headers.cookie);
+	const token = cookies["session"];
+	const payload = verifyToken(token);
+	if (!payload) return res.redirect("/login");
+	if (payload.role === "admin") return res.redirect("/career_dashboard");
+	res.render("apply_form");
+});
+
 router.get("/mypage", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
 	const token = cookies["session"];

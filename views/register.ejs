@@ -9,33 +9,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <div class="logo">Career Board</div>
-      <div class="session">
-        <a class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150" href="/">トップへ戻る</a>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <div class="flex-grow flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <!-- Logo/Header -->
+      <div class="text-center mb-8">
+        <a href="/" class="text-2xl font-bold font-display tracking-tight text-cat-mauve inline-block hover:scale-105 transition-transform">Career Board</a>
+        <h1 class="mt-4 text-3xl font-bold text-cat-text">Get Started</h1>
+        <p class="mt-2 text-cat-overlay1">新しいアカウントを作成します</p>
       </div>
-    </header>
 
-    <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">新規登録</p>
-          <h1>アカウントを作成</h1>
-          <p class="lede">メールアドレスとパスワードを登録して、求人への応募を始めましょう。</p>
+      <!-- Card -->
+      <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-8 shadow-2xl shadow-cat-base/50">
+        <form id="registerForm" class="space-y-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-bold text-cat-subtext0">Email</label>
+            <input 
+              name="email" 
+              type="email" 
+              required 
+              placeholder="you@example.com" 
+              class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-3 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-bold text-cat-subtext0">Password</label>
+            <input 
+              name="password" 
+              type="password" 
+              required 
+              class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-3 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-1 focus:ring-cat-mauve transition-all"
+            />
+          </div>
+          
+          <button type="submit" class="w-full bg-cat-mauve text-cat-base font-bold py-3 px-4 rounded-lg hover:bg-cat-mauve/90 transition-all shadow-lg shadow-cat-mauve/20 active:scale-95">
+            登録して始める
+          </button>
+        </form>
+
+        <div id="authMsg" class="mt-4 text-center text-sm font-bold min-h-[20px]"></div>
+
+        <div class="mt-6 pt-6 border-t border-cat-surface1 text-center">
+          <p class="text-cat-overlay1 text-sm">
+            すでにアカウントをお持ちですか？ 
+            <a href="/login" class="text-cat-mauve hover:text-cat-pink font-bold transition-colors">ログイン</a>
+          </p>
         </div>
-        <div class="card auth-card hover:-translate-y-1 hover:shadow-2xl transition duration-200">
-          <form id="registerForm" class="form">
-            <label>Email <input name="email" type="email" required placeholder="you@example.com" /></label>
-            <label>Password <input name="password" type="password" required /></label>
-            <button type="submit">登録してダッシュボードへ</button>
-            <p class="muted">すでにアカウントをお持ちの方は <a href="/login">ログイン</a></p>
-          </form>
-          <div id="authMsg" class="message"></div>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="/register.js"></script>

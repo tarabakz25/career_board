@@ -9,35 +9,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <div class="logo">Career Board</div>
-      <div class="session" id="sessionArea">
-        <span id="userEmail">ユーザー</span>
-        <a class="ghost" href="/career_dashboard">求人一覧</a>
-        <a class="ghost" href="/mypage">マイページ</a>
-        <button id="logoutBtn" class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">ログアウト</button>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <header class="sticky top-0 z-50 w-full border-b border-cat-surface1 bg-cat-base/80 backdrop-blur-md">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="logo font-bold text-xl text-cat-mauve tracking-tight">Career Board</div>
+      <div class="session flex items-center gap-4 text-sm" id="sessionArea">
+        <span id="userEmail" class="text-cat-subtext0 font-bold hidden sm:inline">ユーザー</span>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/career_dashboard">求人一覧</a>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/mypage">マイページ</a>
+        <button id="logoutBtn" class="bg-cat-surface1 text-cat-text px-3 py-1.5 rounded-lg hover:bg-cat-surface2 transition-colors font-bold text-xs">ログアウト</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="panel two-col">
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      
+      <!-- Job Details -->
+      <section class="lg:col-span-2 space-y-6">
         <div>
-          <p class="eyebrow">求人詳細</p>
-          <h1 id="jobTitle">読み込み中...</h1>
-          <p id="jobMeta" class="muted"></p>
-          <p id="jobDescription" class="body"></p>
+          <p class="text-xs font-bold text-cat-sky uppercase tracking-wider mb-2">求人詳細</p>
+          <h1 id="jobTitle" class="text-3xl font-extrabold text-cat-text tracking-tight mb-4">読み込み中...</h1>
+          <p id="jobMeta" class="flex flex-wrap gap-3 text-sm text-cat-subtext1 mb-6"></p>
         </div>
-        <div class="card">
-          <p class="eyebrow">応募</p>
-          <h3>この求人に応募する</h3>
-          <div id="applyMessage" class="message"></div>
-          <div class="form-row" id="applyActions"></div>
+        
+        <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-8 shadow-sm">
+           <h3 class="text-lg font-bold text-cat-text mb-4 border-b border-cat-surface1 pb-2">仕事内容</h3>
+           <p id="jobDescription" class="text-cat-overlay2 leading-relaxed whitespace-pre-wrap"></p>
         </div>
       </section>
-    </main>
-  </div>
+
+      <!-- Apply Action -->
+      <section>
+        <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-6 shadow-lg sticky top-24">
+          <p class="text-xs font-bold text-cat-mauve uppercase tracking-wider mb-2">応募</p>
+          <h3 class="text-xl font-bold text-cat-text mb-4">この求人に応募する</h3>
+          
+          <div id="applyMessage" class="min-h-[20px] mb-4 text-sm font-bold"></div>
+          
+          <div id="applyActions" class="flex flex-col gap-3">
+             <!-- Buttons will be injected here -->
+          </div>
+          
+          <p class="text-xs text-cat-overlay0 mt-4 text-center">
+            応募すると、マイページでステータスを確認できます。
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
 
   <script type="module" src="/apply.js"></script>
 </body>

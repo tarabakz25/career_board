@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>応募フォーム | Career Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <header class="sticky top-0 z-50 w-full border-b border-cat-surface1 bg-cat-base/80 backdrop-blur-md">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="logo font-bold text-xl text-cat-mauve tracking-tight">Career Board</div>
+      <div class="session flex items-center gap-4 text-sm" id="sessionArea">
+        <span id="userEmail" class="text-cat-subtext0 font-bold hidden sm:inline">ユーザー</span>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/career_dashboard">求人一覧</a>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/mypage">マイページ</a>
+        <button id="logoutBtn" class="bg-cat-surface1 text-cat-text px-3 py-1.5 rounded-lg hover:bg-cat-surface2 transition-colors font-bold text-xs">ログアウト</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 flex-grow">
+    <div class="max-w-2xl mx-auto">
+      
+      <!-- Back Link -->
+      <a id="backLink" href="/career_dashboard" class="inline-flex items-center gap-2 text-cat-subtext0 hover:text-cat-text transition-colors mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        求人詳細に戻る
+      </a>
+
+      <!-- Job Summary Card -->
+      <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-6 mb-8 shadow-lg">
+        <p class="text-xs font-bold text-cat-sky uppercase tracking-wider mb-2">応募先</p>
+        <h1 id="jobTitle" class="text-2xl font-bold text-cat-text mb-2">読み込み中...</h1>
+        <p id="jobCompany" class="text-cat-subtext0 mb-3"></p>
+        <div class="flex flex-wrap gap-3 text-sm">
+          <span id="jobLocation" class="flex items-center gap-1 bg-cat-surface1/50 px-3 py-1 rounded-full text-cat-subtext1"></span>
+          <span id="jobSalary" class="flex items-center gap-1 bg-cat-surface1/50 px-3 py-1 rounded-full text-cat-subtext1"></span>
+          <span id="jobDeadline" class="flex items-center gap-1 bg-cat-surface1/50 px-3 py-1 rounded-full text-cat-subtext1"></span>
+        </div>
+      </div>
+
+      <!-- Application Form -->
+      <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-8 shadow-lg">
+        <div class="mb-6">
+          <p class="text-xs font-bold text-cat-mauve uppercase tracking-wider mb-2">応募フォーム</p>
+          <h2 class="text-xl font-bold text-cat-text">応募情報を入力</h2>
+          <p class="text-sm text-cat-subtext0 mt-1">必須項目をご入力の上、応募してください。</p>
+        </div>
+
+        <form id="applyForm" class="space-y-6">
+          <div>
+            <label class="block text-sm font-bold text-cat-subtext0 mb-2">
+              氏名 <span class="text-cat-red">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="fullName" 
+              required 
+              placeholder="山田 太郎" 
+              class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-3 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-2 focus:ring-cat-mauve/20 transition-all"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-cat-subtext0 mb-2">
+              電話番号 <span class="text-cat-red">*</span>
+            </label>
+            <input 
+              type="tel" 
+              id="phone" 
+              required 
+              placeholder="090-1234-5678" 
+              class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-3 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-2 focus:ring-cat-mauve/20 transition-all"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-cat-subtext0 mb-2">
+              志望動機・自己PR
+            </label>
+            <textarea 
+              id="coverLetter" 
+              rows="6" 
+              placeholder="この求人に応募する理由や、ご自身の経験・スキルについてお書きください。"
+              class="w-full bg-cat-mantle border border-cat-surface1 rounded-lg px-4 py-3 text-cat-text placeholder-cat-overlay0 focus:outline-none focus:border-cat-mauve focus:ring-2 focus:ring-cat-mauve/20 transition-all resize-none"
+            ></textarea>
+          </div>
+
+          <div id="formMessage" class="text-sm font-bold"></div>
+
+          <div class="flex gap-4 pt-4">
+            <a id="cancelBtn" href="/career_dashboard" class="flex-1 bg-cat-surface1 text-cat-text font-bold py-3 rounded-lg hover:bg-cat-surface2 transition-colors text-center">
+              キャンセル
+            </a>
+            <button 
+              type="submit" 
+              id="submitBtn"
+              class="flex-1 bg-cat-blue text-cat-base font-bold py-3 rounded-lg hover:bg-cat-blue/90 transition-colors shadow-lg shadow-cat-blue/20"
+            >
+              応募する
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module" src="/apply_form.js"></script>
+</body>
+</html>

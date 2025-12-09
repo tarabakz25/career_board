@@ -74,47 +74,50 @@ function renderApplyActions() {
 	const msg = document.getElementById("applyMessage");
 	container.innerHTML = "";
 	msg.textContent = "";
+	msg.className = "min-h-[20px] mb-4 text-sm font-bold";
 	if (!state.user || !state.job) return;
 
 	if (state.user.role === "admin") {
 		msg.textContent = "管理者アカウントでは応募できません";
+		msg.className = "min-h-[20px] mb-4 text-sm font-bold text-cat-peach";
 		return;
 	}
 
 	const applyBtn = document.createElement("button");
+	applyBtn.className =
+		"w-full bg-cat-blue text-cat-base font-bold py-3 rounded-lg hover:bg-cat-blue/90 transition-colors shadow-lg shadow-cat-blue/20";
 	applyBtn.textContent = "この求人に応募";
-	applyBtn.addEventListener("click", handleApply);
+	applyBtn.addEventListener("click", () => {
+		window.location.href = `/apply_form?id=${state.job.id}`;
+	});
 
 	const cancelBtn = document.createElement("button");
 	cancelBtn.textContent = "応募を取り消す";
-	cancelBtn.classList.add("ghost");
+	cancelBtn.className =
+		"w-full bg-cat-surface1 text-cat-text font-bold py-3 rounded-lg hover:bg-cat-surface2 transition-colors";
 	cancelBtn.addEventListener("click", handleCancel);
 
 	if (state.user.appliedJobId && state.user.appliedJobId !== state.job.id) {
 		applyBtn.disabled = true;
+		applyBtn.className =
+			"w-full bg-cat-surface2 text-cat-overlay0 font-bold py-3 rounded-lg cursor-not-allowed";
 		msg.textContent =
 			"他の求人に応募中です。マイページから取り消してください。";
+		msg.className = "min-h-[20px] mb-4 text-sm font-bold text-cat-peach";
 	}
 
 	if (state.user.appliedJobId === state.job.id) {
 		applyBtn.textContent = "応募済み";
+		applyBtn.disabled = true;
+		applyBtn.className =
+			"w-full bg-cat-green/20 text-cat-green font-bold py-3 rounded-lg cursor-not-allowed";
+		msg.textContent = "この求人に応募済みです";
+		msg.className = "min-h-[20px] mb-4 text-sm font-bold text-cat-green";
 	}
 
 	container.appendChild(applyBtn);
-	container.appendChild(cancelBtn);
-}
-
-async function handleApply() {
-	try {
-		await api(`/api/jobs/${state.job.id}/apply`, {
-			method: "POST",
-			body: JSON.stringify({}),
-		});
-		state.user.appliedJobId = state.job.id;
-		document.getElementById("applyMessage").textContent = "応募しました";
-		renderApplyActions();
-	} catch (e) {
-		document.getElementById("applyMessage").textContent = e.message;
+	if (state.user.appliedJobId === state.job.id) {
+		container.appendChild(cancelBtn);
 	}
 }
 
@@ -127,9 +130,13 @@ async function handleCancel() {
 		state.user.appliedJobId = null;
 		document.getElementById("applyMessage").textContent =
 			"応募を取り消しました";
+		document.getElementById("applyMessage").className =
+			"min-h-[20px] mb-4 text-sm font-bold text-cat-blue";
 		renderApplyActions();
 	} catch (e) {
 		document.getElementById("applyMessage").textContent = e.message;
+		document.getElementById("applyMessage").className =
+			"min-h-[20px] mb-4 text-sm font-bold text-cat-red";
 	}
 }
 

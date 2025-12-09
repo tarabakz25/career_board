@@ -9,35 +9,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <div class="logo">Career Board</div>
-      <div class="session" id="sessionArea">
-        <span id="userEmail">ユーザー</span>
-        <a class="ghost" href="/career_dashboard">求人一覧</a>
-        <button id="logoutBtn" class="ghost hover:bg-slate-800/60 hover:-translate-y-0.5 hover:shadow-lg transition duration-150">ログアウト</button>
+<body class="bg-cat-base text-cat-text min-h-screen flex flex-col font-sans antialiased">
+  
+  <header class="sticky top-0 z-50 w-full border-b border-cat-surface1 bg-cat-base/80 backdrop-blur-md">
+    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="logo font-bold text-xl text-cat-mauve tracking-tight">Career Board</div>
+      <div class="session flex items-center gap-4 text-sm" id="sessionArea">
+        <span id="userEmail" class="text-cat-subtext0 font-bold hidden sm:inline">ユーザー</span>
+        <a class="text-cat-subtext0 hover:text-cat-text font-bold transition-colors" href="/career_dashboard">求人一覧</a>
+        <button id="logoutBtn" class="bg-cat-surface1 text-cat-text px-3 py-1.5 rounded-lg hover:bg-cat-surface2 transition-colors font-bold text-xs">ログアウト</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="panel">
-        <div class="panel__header">
-          <div>
-            <p class="eyebrow">マイページ</p>
-            <h2>現在の応募状況</h2>
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-6">
+        <p class="text-xs font-bold text-cat-sky uppercase tracking-wider mb-1">マイページ</p>
+        <h2 class="text-2xl font-bold text-cat-text">現在の応募状況</h2>
+      </div>
+
+      <div class="bg-cat-surface0 border border-cat-surface1 rounded-2xl p-8 shadow-lg">
+        <div id="accountContent" class="space-y-6">
+          <div class="flex items-center gap-3">
+             <div class="w-2 h-2 rounded-full bg-cat-overlay0" id="statusDot"></div>
+             <p id="accountStatus" class="text-cat-subtext0 font-bold">読み込み中...</p>
+          </div>
+          
+          <div id="accountJob" class="text-lg text-cat-text leading-relaxed p-4 bg-cat-mantle rounded-xl border border-cat-surface1/50 min-h-[60px]"></div>
+          
+          <div class="pt-4 border-t border-cat-surface1">
+            <button id="cancelBtn" class="w-full sm:w-auto px-6 py-2.5 bg-cat-surface1 text-cat-red font-bold rounded-lg hover:bg-cat-surface2 hover:text-cat-red/80 transition-colors border border-transparent hover:border-cat-red/20">
+              応募を取り消す
+            </button>
           </div>
         </div>
-        <div id="accountContent" class="card">
-          <p id="accountStatus" class="muted">読み込み中...</p>
-          <div id="accountJob" class="body"></div>
-          <div class="form-row" style="margin-top: 12px;">
-            <button id="cancelBtn" class="ghost">応募を取り消す</button>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
+      </div>
+    </div>
+  </main>
 
   <script type="module" src="/mypage.js"></script>
 </body>

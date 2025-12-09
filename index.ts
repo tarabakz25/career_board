@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
@@ -17,7 +17,19 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(express.json());
+
+// JSON parse error handling
+app.use(
+	express.json({
+		verify: (_req, _res, buf) => {
+			try {
+				JSON.parse(buf.toString());
+			} catch {
+				throw new Error("Invalid JSON");
+			}
+		},
+	}),
+);
 app.use(express.urlencoded({ extended: true }));
 
 app.set("views", path.join(__dirname, "views"));
@@ -32,12 +44,32 @@ app.use("/api/admin", adminRouter);
 // Last: page routes (SSR entry)
 app.use(pagesRouter);
 
+// Global error handler for API routes
+app.use("/api", (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+	console.error("API Error:", err);
+	if (err.message === "Invalid JSON") {
+		return res.status(400).json({ message: "リクエストのJSON形式が不正です" });
+	}
+	res.status(500).json({ message: "サーバーエラーが発生しました" });
+});
+
+// Global error handler for pages
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+	console.error("Page Error:", err);
+	res.status(500).render("index");
+});
+
 async function bootstrap() {
-	await seedAdmin();
-	await seedJobs();
-	app.listen(PORT, () =>
-		console.log(`career-board running on http://localhost:${PORT}`),
-	);
+	try {
+		await seedAdmin();
+		await seedJobs();
+		app.listen(PORT, () =>
+			console.log(`career-board running on http://localhost:${PORT}`),
+		);
+	} catch (err) {
+		console.error("Failed to initialize database:", err);
+		throw err;
+	}
 }
 
 bootstrap().catch((err) => {

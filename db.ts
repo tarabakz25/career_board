@@ -1,5 +1,14 @@
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'db.ts:1',message:'db.ts entry - before imports',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
+// #endregion
 import { PrismaClient } from "@prisma/client";
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'db.ts:2',message:'Before importing lib/auth',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
+// #endregion
 import { hashPassword, verifyPassword } from "./lib/auth";
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'db.ts:3',message:'lib/auth imported successfully',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
+// #endregion
 
 const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";

@@ -65,8 +65,7 @@ export async function seedJobs() {
 					salaryMin: 9000000,
 					salaryMax: 12000000,
 					deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-					description:
-						"React/TypeScript, design systems, Web Vitals ownership",
+					description: "React/TypeScript, design systems, Web Vitals ownership",
 				},
 				{
 					title: "Backend Engineer",

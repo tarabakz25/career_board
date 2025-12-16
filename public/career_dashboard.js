@@ -97,10 +97,7 @@ function renderJobs() {
 			applyBtn.disabled = true;
 			applyBtn.textContent =
 				state.user?.role === "admin" ? "管理者" : "ログインして応募";
-		} else if (
-			state.user.appliedJobId &&
-			state.user.appliedJobId !== job.id
-		) {
+		} else if (state.user.appliedJobId && state.user.appliedJobId !== job.id) {
 			applyBtn.disabled = true;
 			applyBtn.textContent = "他に応募中";
 		} else if (state.user.appliedJobId === job.id) {

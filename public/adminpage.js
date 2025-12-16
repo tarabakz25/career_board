@@ -67,7 +67,7 @@ async function renderAdminJobs() {
 		const row = document.createElement("div");
 		row.className =
 			"grid grid-cols-1 md:grid-cols-5 gap-2 md:gap-4 p-4 border-b border-cat-surface1 items-start md:items-center hover:bg-cat-surface1/10 transition-colors";
-		
+
 		// For mobile, we might want labels or a different layout, but for now let's keep it simple with grid
 		row.innerHTML = `
             <div class="font-bold text-cat-text md:font-normal">${job.title}</div>
@@ -75,20 +75,22 @@ async function renderAdminJobs() {
             <div class="text-cat-subtext0"><span class="md:hidden text-xs text-cat-overlay0 mr-2">勤務地:</span>${job.location || "-"}</div>
             <div class="text-cat-subtext0"><span class="md:hidden text-xs text-cat-overlay0 mr-2">締切:</span>${formatDate(job.deadline)}</div>
         `;
-		
+
 		const actions = document.createElement("div");
 		actions.className = "flex gap-2 mt-2 md:mt-0";
-		
+
 		const editBtn = document.createElement("button");
-		editBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-blue text-cat-base hover:bg-cat-blue/90 transition-colors";
+		editBtn.className =
+			"px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-blue text-cat-base hover:bg-cat-blue/90 transition-colors";
 		editBtn.textContent = "編集";
 		editBtn.onclick = () => fillJobForm(job);
-		
+
 		const delBtn = document.createElement("button");
-		delBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-surface1 text-cat-red hover:bg-cat-surface2 transition-colors";
+		delBtn.className =
+			"px-3 py-1.5 rounded-lg text-xs font-bold bg-cat-surface1 text-cat-red hover:bg-cat-surface2 transition-colors";
 		delBtn.textContent = "削除";
 		delBtn.onclick = () => deleteJob(job.id);
-		
+
 		actions.append(editBtn, delBtn);
 		row.appendChild(actions);
 		container.appendChild(row);

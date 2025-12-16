@@ -1,14 +1,13 @@
+import dotenv from "dotenv";
+import type { NextFunction, Request, Response } from "express";
 import express from "express";
-import type { Request, Response, NextFunction } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
-
+import { seedAdmin, seedJobs } from "./db";
+import adminRouter from "./routes/admin";
 import authRouter from "./routes/auth";
 import jobsRouter from "./routes/jobs";
-import adminRouter from "./routes/admin";
 import pagesRouter from "./routes/pages";
-import { seedAdmin, seedJobs } from "./db";
 
 dotenv.config();
 
@@ -46,13 +45,18 @@ app.use("/api/admin", adminRouter);
 app.use(pagesRouter);
 
 // Global error handler for API routes
-app.use("/api", (err: Error, _req: Request, res: Response, _next: NextFunction) => {
-	console.error("API Error:", err);
-	if (err.message === "Invalid JSON") {
-		return res.status(400).json({ message: "リクエストのJSON形式が不正です" });
-	}
-	res.status(500).json({ message: "サーバーエラーが発生しました" });
-});
+app.use(
+	"/api",
+	(err: Error, _req: Request, res: Response, _next: NextFunction) => {
+		console.error("API Error:", err);
+		if (err.message === "Invalid JSON") {
+			return res
+				.status(400)
+				.json({ message: "リクエストのJSON形式が不正です" });
+		}
+		res.status(500).json({ message: "サーバーエラーが発生しました" });
+	},
+);
 
 // Global error handler for pages
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

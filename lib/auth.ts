@@ -91,9 +91,7 @@ export function authMiddleware(required = false) {
 			const payload = verifyToken(token);
 			if (!payload) {
 				if (required)
-					return res
-						.status(401)
-						.json({ message: "ログインが必要です" });
+					return res.status(401).json({ message: "ログインが必要です" });
 				return next();
 			}
 			(req as any).user = payload;

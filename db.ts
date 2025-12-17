@@ -4,11 +4,26 @@ import { hashPassword, verifyPassword } from "./lib/auth.js";
 const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
-export const prisma = new PrismaClient({
-	log:
-		process.env.NODE_ENV === "development"
-			? ["query", "error", "warn"]
-			: ["error"],
+// Lazy initialization to avoid connection errors during build
+let _prisma: PrismaClient | null = null;
+
+export const prisma = new Proxy({} as PrismaClient, {
+	get(_target, prop) {
+		if (!_prisma) {
+			if (!process.env.DATABASE_URL) {
+				throw new Error(
+					"DATABASE_URL is not set. Please configure your database connection.",
+				);
+			}
+			_prisma = new PrismaClient({
+				log:
+					process.env.NODE_ENV === "development"
+						? ["query", "error", "warn"]
+						: ["error"],
+			});
+		}
+		return _prisma[prop as keyof PrismaClient];
+	},
 });
 
 export async function seedAdmin() {

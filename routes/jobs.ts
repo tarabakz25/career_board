@@ -1,8 +1,18 @@
 import { Router } from "express";
+import multer from "multer";
 import { prisma } from "../db.js";
 import { authMiddleware } from "../lib/auth.js";
+import { deleteFileFromS3, uploadFileToS3 } from "../lib/s3.js";
 
 const router = Router();
+
+// Multer設定（メモリストレージ使用）
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: {
+		fileSize: 10 * 1024 * 1024, // 10MB
+	},
+});
 
 router.get("/", async (req, res) => {
 	try {
@@ -97,67 +107,95 @@ router.get("/:id", async (req, res) => {
 	}
 });
 
-router.post("/:id/apply", authMiddleware(true), async (req, res) => {
-	try {
-		const user = (req as any).user;
-		if (user.role !== "user")
-			return res
-				.status(403)
-				.json({ message: "管理者アカウントでは応募できません" });
+router.post(
+	"/:id/apply",
+	authMiddleware(true),
+	upload.single("resume"),
+	async (req, res) => {
+		try {
+			const user = (req as any).user;
+			if (user.role !== "user")
+				return res
+					.status(403)
+					.json({ message: "管理者アカウントでは応募できません" });
 
-		const jobId = Number(req.params.id);
-		if (Number.isNaN(jobId) || jobId <= 0) {
-			return res.status(400).json({ message: "無効な求人IDです" });
-		}
+			const jobId = Number(req.params.id);
+			if (Number.isNaN(jobId) || jobId <= 0) {
+				return res.status(400).json({ message: "無効な求人IDです" });
+			}
 
-		const { fullName, phone, coverLetter } = req.body;
+			const { fullName, phone, coverLetter } = req.body;
 
-		if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
-			return res.status(400).json({ message: "氏名は必須です" });
-		if (!phone || typeof phone !== "string" || phone.trim() === "")
-			return res.status(400).json({ message: "電話番号は必須です" });
-		const phoneRegex = /^[0-9\-+() ]+$/;
-		if (!phoneRegex.test(phone))
-			return res
-				.status(400)
-				.json({ message: "有効な電話番号を入力してください" });
+			if (!fullName || typeof fullName !== "string" || fullName.trim() === "")
+				return res.status(400).json({ message: "氏名は必須です" });
+			if (!phone || typeof phone !== "string" || phone.trim() === "")
+				return res.status(400).json({ message: "電話番号は必須です" });
+			const phoneRegex = /^[0-9\-+() ]+$/;
+			if (!phoneRegex.test(phone))
+				return res
+					.status(400)
+					.json({ message: "有効な電話番号を入力してください" });
 
-		const job = await prisma.job.findUnique({ where: { id: jobId } });
-		if (!job) return res.status(404).json({ message: "求人が見つかりません" });
+			const job = await prisma.job.findUnique({ where: { id: jobId } });
+			if (!job)
+				return res.status(404).json({ message: "求人が見つかりません" });
 
-		if (job.deadline && new Date(job.deadline) < new Date()) {
-			return res
-				.status(400)
-				.json({ message: "この求人は応募期限を過ぎています" });
-		}
+			if (job.deadline && new Date(job.deadline) < new Date()) {
+				return res
+					.status(400)
+					.json({ message: "この求人は応募期限を過ぎています" });
+			}
 
-		const existing = await prisma.application.findUnique({
-			where: { userId: user.userId },
-		});
-		if (existing) {
-			if (existing.jobId === jobId)
-				return res.json({ message: "既に応募済みです" });
-			return res.status(400).json({
-				message:
-					"他の求人に応募中です。応募を取り消してから再度お試しください。",
+			const existing = await prisma.application.findUnique({
+				where: { userId: user.userId },
 			});
-		}
+			if (existing) {
+				if (existing.jobId === jobId)
+					return res.json({ message: "既に応募済みです" });
+				return res.status(400).json({
+					message:
+						"他の求人に応募中です。応募を取り消してから再度お試しください。",
+				});
+			}
 
-		await prisma.application.create({
-			data: {
-				userId: user.userId,
-				jobId,
-				fullName: fullName.trim(),
-				phone: phone.trim(),
-				coverLetter: coverLetter?.trim() || null,
-			},
-		});
-		res.json({ message: "応募が完了しました" });
-	} catch (error) {
-		console.error("Apply error:", error);
-		res.status(500).json({ message: "応募処理中にエラーが発生しました" });
-	}
-});
+			// ファイルアップロード処理（オプション）
+			let resumeUrl: string | null = null;
+			let resumeKey: string | null = null;
+
+			if (req.file) {
+				try {
+					const uploadResult = await uploadFileToS3(req.file, user.userId);
+					resumeUrl = uploadResult.url;
+					resumeKey = uploadResult.key;
+				} catch (uploadError) {
+					console.error("File upload error:", uploadError);
+					return res.status(400).json({
+						message:
+							uploadError instanceof Error
+								? uploadError.message
+								: "ファイルのアップロードに失敗しました",
+					});
+				}
+			}
+
+			await prisma.application.create({
+				data: {
+					userId: user.userId,
+					jobId,
+					fullName: fullName.trim(),
+					phone: phone.trim(),
+					coverLetter: coverLetter?.trim() || null,
+					resumeUrl,
+					resumeKey,
+				},
+			});
+			res.json({ message: "応募が完了しました" });
+		} catch (error) {
+			console.error("Apply error:", error);
+			res.status(500).json({ message: "応募処理中にエラーが発生しました" });
+		}
+	},
+);
 
 router.post("/:id/cancel", authMiddleware(true), async (req, res) => {
 	try {
@@ -174,6 +212,16 @@ router.post("/:id/cancel", authMiddleware(true), async (req, res) => {
 			return res
 				.status(400)
 				.json({ message: "この求人への応募履歴がありません" });
+
+		// S3からファイルを削除
+		if (existing.resumeKey) {
+			try {
+				await deleteFileFromS3(existing.resumeKey);
+			} catch (deleteError) {
+				console.error("Failed to delete resume from S3:", deleteError);
+				// S3削除失敗してもアプリケーションは削除する
+			}
+		}
 
 		await prisma.application.delete({ where: { id: existing.id } });
 		res.json({ message: "応募を取り消しました" });

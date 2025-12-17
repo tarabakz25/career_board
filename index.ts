@@ -179,18 +179,23 @@ log(
 		NODE_ENV: process.env.NODE_ENV,
 		PORT,
 		isProduction: process.env.NODE_ENV === "production",
+		isRender: !!process.env.RENDER,
 	},
 	"A",
 );
 // #endregion
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
+// Start server for local development OR Render (traditional Node.js host)
+// Skip for Vercel (serverless) in production
+const shouldStartServer =
+	process.env.NODE_ENV !== "production" || process.env.RENDER;
+
+if (shouldStartServer) {
 	// #region agent log
 	log(
 		"index.ts:132",
-		"app.listen will be called (development mode)",
-		{ PORT },
+		"app.listen will be called",
+		{ PORT, reason: process.env.RENDER ? "Render" : "development" },
 		"A",
 	);
 	// #endregion
@@ -201,7 +206,7 @@ if (process.env.NODE_ENV !== "production") {
 	// #region agent log
 	log(
 		"index.ts:138",
-		"app.listen SKIPPED (production mode) - server NOT started!",
+		"app.listen SKIPPED (Vercel serverless mode)",
 		{ NODE_ENV: process.env.NODE_ENV },
 		"A",
 	);

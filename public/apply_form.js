@@ -16,6 +16,19 @@ async function api(path, options = {}) {
 	return res.json();
 }
 
+async function apiFormData(path, formData) {
+	const res = await fetch(path, {
+		method: "POST",
+		credentials: "same-origin",
+		body: formData,
+	});
+	if (!res.ok) {
+		const msg = await res.json().catch(() => ({}));
+		throw new Error(msg.message || res.statusText);
+	}
+	return res.json();
+}
+
 function formatSalary(min, max) {
 	if (!min && !max) return "給与非公開";
 	const f = (n) => Number(n).toLocaleString("ja-JP");
@@ -116,6 +129,7 @@ async function handleSubmit(e) {
 	const fullName = document.getElementById("fullName").value;
 	const phone = document.getElementById("phone").value;
 	const coverLetter = document.getElementById("coverLetter").value;
+	const resumeFile = document.getElementById("resumeFile").files[0];
 	const msgEl = document.getElementById("formMessage");
 	const submitBtn = document.getElementById("submitBtn");
 
@@ -125,10 +139,16 @@ async function handleSubmit(e) {
 	submitBtn.textContent = "送信中...";
 
 	try {
-		await api(`/api/jobs/${state.job.id}/apply`, {
-			method: "POST",
-			body: JSON.stringify({ fullName, phone, coverLetter }),
-		});
+		// FormDataを使用してファイルと他のデータを送信
+		const formData = new FormData();
+		formData.append("fullName", fullName);
+		formData.append("phone", phone);
+		formData.append("coverLetter", coverLetter);
+		if (resumeFile) {
+			formData.append("resume", resumeFile);
+		}
+
+		await apiFormData(`/api/jobs/${state.job.id}/apply`, formData);
 
 		msgEl.textContent = "応募が完了しました！マイページにリダイレクトします...";
 		msgEl.className = "text-sm font-bold text-cat-green";
@@ -148,6 +168,45 @@ async function handleSubmit(e) {
 			"flex-1 bg-cat-blue text-cat-base font-bold py-3 rounded-lg hover:bg-cat-blue/90 transition-colors shadow-lg shadow-cat-blue/20";
 	}
 }
+
+// ファイル選択ボタンのイベントリスナー
+document.getElementById("resumeFileBtn").addEventListener("click", () => {
+	document.getElementById("resumeFile").click();
+});
+
+document.getElementById("resumeFile").addEventListener("change", (e) => {
+	const file = e.target.files[0];
+	const fileNameEl = document.getElementById("resumeFileName");
+
+	if (file) {
+		// ファイルサイズチェック（10MB）
+		if (file.size > 10 * 1024 * 1024) {
+			fileNameEl.textContent = "ファイルサイズが大きすぎます（最大10MB）";
+			fileNameEl.className = "text-sm text-cat-red";
+			e.target.value = "";
+			return;
+		}
+
+		// ファイルタイプチェック
+		const allowedTypes = [
+			"application/pdf",
+			"application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		];
+		if (!allowedTypes.includes(file.type)) {
+			fileNameEl.textContent = "PDF または Word 形式のファイルを選択してください";
+			fileNameEl.className = "text-sm text-cat-red";
+			e.target.value = "";
+			return;
+		}
+
+		fileNameEl.textContent = `選択済み: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+		fileNameEl.className = "text-sm text-cat-green";
+	} else {
+		fileNameEl.textContent = "ファイルを選択（PDF、Word形式、最大10MB）";
+		fileNameEl.className = "text-sm text-cat-subtext1";
+	}
+});
 
 document.getElementById("applyForm").addEventListener("submit", handleSubmit);
 

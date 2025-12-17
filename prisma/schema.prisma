@@ -42,6 +42,8 @@ model Application {
   fullName     String   @map("full_name")
   phone        String
   coverLetter  String?  @map("cover_letter")
+  resumeUrl    String?  @map("resume_url")
+  resumeKey    String?  @map("resume_key")
   createdAt    DateTime @default(now()) @map("created_at")
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   job          Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)

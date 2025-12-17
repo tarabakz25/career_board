@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "bun run index.ts",
 		"start": "bun run index.ts",
+		"build": "prisma generate",
+		"postinstall": "prisma generate",
 		"build:css": "tailwindcss -i ./src/styles/input.css -o ./public/styles.css --minify",
 		"dev:css": "tailwindcss -i ./src/styles/input.css -o ./public/styles.css --watch"
 	},

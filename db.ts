@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { hashPassword, verifyPassword } from "./lib/auth";
+import { hashPassword, verifyPassword } from "./lib/auth.js";
 
 const ADMIN_EMAIL = "admin@example.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";

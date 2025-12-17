@@ -1,42 +1,67 @@
+// #region agent log
+import { appendFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
-import { seedAdmin, seedJobs } from "./db";
-import adminRouter from "./routes/admin";
-import authRouter from "./routes/auth";
-import jobsRouter from "./routes/jobs";
-import pagesRouter from "./routes/pages";
+import { seedAdmin, seedJobs } from "./db.js";
+import adminRouter from "./routes/admin.js";
+import authRouter from "./routes/auth.js";
+import jobsRouter from "./routes/jobs.js";
+import pagesRouter from "./routes/pages.js";
 
-// #region agent log
-import { appendFileSync } from "node:fs";
-import { existsSync, mkdirSync } from "node:fs";
-const logDir = path.join(process.cwd(), '.cursor');
-const logPath = path.join(logDir, 'debug.log');
-const log = (location: string, message: string, data: any, hypothesisId: string) => {
-  const logEntry = {location,message,data,hypothesisId,timestamp:Date.now(),sessionId:'debug-session'};
-  console.log('[DEBUG]', JSON.stringify(logEntry));
-  try {
-    if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true });
-    appendFileSync(logPath, JSON.stringify(logEntry) + '\n');
-  } catch (e) {
-    console.error('[DEBUG LOG ERROR]', e);
-  }
+const logDir = path.join(process.cwd(), ".cursor");
+const logPath = path.join(logDir, "debug.log");
+const log = (
+	location: string,
+	message: string,
+	data: any,
+	hypothesisId: string,
+) => {
+	const logEntry = {
+		location,
+		message,
+		data,
+		hypothesisId,
+		timestamp: Date.now(),
+		sessionId: "debug-session",
+	};
+	console.log("[DEBUG]", JSON.stringify(logEntry));
+	try {
+		if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true });
+		appendFileSync(logPath, JSON.stringify(logEntry) + "\n");
+	} catch (e) {
+		console.error("[DEBUG LOG ERROR]", e);
+	}
 };
 // #endregion
 
 dotenv.config();
 
 // #region agent log
-log('index.ts:19', 'App startup - environment check', {NODE_ENV: process.env.NODE_ENV, PORT: process.env.PORT, DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET'}, 'A,B,C');
+log(
+	"index.ts:19",
+	"App startup - environment check",
+	{
+		NODE_ENV: process.env.NODE_ENV,
+		PORT: process.env.PORT,
+		DATABASE_URL: process.env.DATABASE_URL ? "SET" : "NOT_SET",
+	},
+	"A,B,C",
+);
 // #endregion
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // #region agent log
-log('index.ts:26', 'ESM path resolution success', {__filename, __dirname}, 'D');
+log(
+	"index.ts:26",
+	"ESM path resolution success",
+	{ __filename, __dirname },
+	"D",
+);
 // #endregion
 
 const PORT = process.env.PORT || 3000;
@@ -62,39 +87,44 @@ let dbInitialized = false;
 
 async function initializeDatabase() {
 	// #region agent log
-	log('index.ts:48', 'initializeDatabase called', {dbInitialized}, 'C');
+	log("index.ts:48", "initializeDatabase called", { dbInitialized }, "C");
 	// #endregion
-	
+
 	if (dbInitialized) return;
-	
+
 	// Skip if DATABASE_URL is not set
 	if (!process.env.DATABASE_URL) {
 		console.warn("DATABASE_URL not set, skipping database initialization");
 		// #region agent log
-		log('index.ts:55', 'DATABASE_URL not set, skipping DB init', {}, 'C');
+		log("index.ts:55", "DATABASE_URL not set, skipping DB init", {}, "C");
 		// #endregion
 		dbInitialized = true; // Mark as initialized to avoid repeated attempts
 		return;
 	}
-	
+
 	try {
 		// #region agent log
-		log('index.ts:62', 'Before seedAdmin', {}, 'C');
+		log("index.ts:62", "Before seedAdmin", {}, "C");
 		// #endregion
 		await seedAdmin();
 		// #region agent log
-		log('index.ts:66', 'After seedAdmin, before seedJobs', {}, 'C');
+		log("index.ts:66", "After seedAdmin, before seedJobs", {}, "C");
 		// #endregion
 		await seedJobs();
 		dbInitialized = true;
 		console.log("Database initialized successfully");
 		// #region agent log
-		log('index.ts:72', 'Database initialized successfully', {}, 'C');
+		log("index.ts:72", "Database initialized successfully", {}, "C");
 		// #endregion
 	} catch (err) {
 		console.error("Failed to initialize database:", err);
 		// #region agent log
-		log('index.ts:77', 'Database initialization failed', {error: String(err)}, 'C');
+		log(
+			"index.ts:77",
+			"Database initialization failed",
+			{ error: String(err) },
+			"C",
+		);
 		// #endregion
 		dbInitialized = true; // Mark as initialized to avoid repeated attempts
 		// Don't throw - allow app to continue
@@ -142,20 +172,39 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 // #region agent log
-log('index.ts:126', 'Before app.listen check', {NODE_ENV: process.env.NODE_ENV, PORT, isProduction: process.env.NODE_ENV === "production"}, 'A');
+log(
+	"index.ts:126",
+	"Before app.listen check",
+	{
+		NODE_ENV: process.env.NODE_ENV,
+		PORT,
+		isProduction: process.env.NODE_ENV === "production",
+	},
+	"A",
+);
 // #endregion
 
 // For local development
 if (process.env.NODE_ENV !== "production") {
 	// #region agent log
-	log('index.ts:132', 'app.listen will be called (development mode)', {PORT}, 'A');
+	log(
+		"index.ts:132",
+		"app.listen will be called (development mode)",
+		{ PORT },
+		"A",
+	);
 	// #endregion
 	app.listen(PORT, () =>
 		console.log(`career-board running on http://localhost:${PORT}`),
 	);
 } else {
 	// #region agent log
-	log('index.ts:138', 'app.listen SKIPPED (production mode) - server NOT started!', {NODE_ENV: process.env.NODE_ENV}, 'A');
+	log(
+		"index.ts:138",
+		"app.listen SKIPPED (production mode) - server NOT started!",
+		{ NODE_ENV: process.env.NODE_ENV },
+		"A",
+	);
 	// #endregion
 }
 

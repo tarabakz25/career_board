@@ -32,6 +32,30 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 
+// Track if database has been initialized
+let dbInitialized = false;
+
+async function initializeDatabase() {
+	if (dbInitialized) return;
+	try {
+		await seedAdmin();
+		await seedJobs();
+		dbInitialized = true;
+		console.log("Database initialized successfully");
+	} catch (err) {
+		console.error("Failed to initialize database:", err);
+		// Don't throw - allow app to continue
+	}
+}
+
+// Initialize on first request (middleware)
+app.use(async (_req, _res, next) => {
+	if (!dbInitialized) {
+		await initializeDatabase();
+	}
+	next();
+});
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
@@ -62,21 +86,6 @@ app.use(
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	console.error("Page Error:", err);
 	res.status(500).render("index");
-});
-
-async function bootstrap() {
-	try {
-		await seedAdmin();
-		await seedJobs();
-	} catch (err) {
-		console.error("Failed to initialize database:", err);
-		throw err;
-	}
-}
-
-// Initialize database on startup
-bootstrap().catch((err) => {
-	console.error("Failed to initialize database", err);
 });
 
 // For local development

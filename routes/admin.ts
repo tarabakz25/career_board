@@ -58,11 +58,11 @@ router.post("/jobs", async (req, res) => {
 		const salaryMinNum = salaryMin ? Number(salaryMin) : null;
 		const salaryMaxNum = salaryMax ? Number(salaryMax) : null;
 
-		if (salaryMin && (isNaN(salaryMinNum!) || salaryMinNum! < 0))
+		if (salaryMin && (Number.isNaN(salaryMinNum!) || salaryMinNum! < 0))
 			return res
 				.status(400)
 				.json({ message: "給与下限は有効な数値で指定してください" });
-		if (salaryMax && (isNaN(salaryMaxNum!) || salaryMaxNum! < 0))
+		if (salaryMax && (Number.isNaN(salaryMaxNum!) || salaryMaxNum! < 0))
 			return res
 				.status(400)
 				.json({ message: "給与上限は有効な数値で指定してください" });
@@ -74,7 +74,7 @@ router.post("/jobs", async (req, res) => {
 		let deadlineDate: Date | null = null;
 		if (deadline) {
 			deadlineDate = new Date(deadline);
-			if (isNaN(deadlineDate.getTime()))
+			if (Number.isNaN(deadlineDate.getTime()))
 				return res
 					.status(400)
 					.json({ message: "有効な日付形式で締切を指定してください" });
@@ -102,7 +102,7 @@ router.post("/jobs", async (req, res) => {
 router.put("/jobs/:id", async (req, res) => {
 	try {
 		const jobId = Number(req.params.id);
-		if (isNaN(jobId) || jobId <= 0) {
+		if (Number.isNaN(jobId) || jobId <= 0) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 
@@ -124,11 +124,11 @@ router.put("/jobs/:id", async (req, res) => {
 		const salaryMinNum = salaryMin ? Number(salaryMin) : null;
 		const salaryMaxNum = salaryMax ? Number(salaryMax) : null;
 
-		if (salaryMin && (isNaN(salaryMinNum!) || salaryMinNum! < 0))
+		if (salaryMin && (Number.isNaN(salaryMinNum!) || salaryMinNum! < 0))
 			return res
 				.status(400)
 				.json({ message: "給与下限は有効な数値で指定してください" });
-		if (salaryMax && (isNaN(salaryMaxNum!) || salaryMaxNum! < 0))
+		if (salaryMax && (Number.isNaN(salaryMaxNum!) || salaryMaxNum! < 0))
 			return res
 				.status(400)
 				.json({ message: "給与上限は有効な数値で指定してください" });
@@ -140,7 +140,7 @@ router.put("/jobs/:id", async (req, res) => {
 		let deadlineDate: Date | null = null;
 		if (deadline) {
 			deadlineDate = new Date(deadline);
-			if (isNaN(deadlineDate.getTime()))
+			if (Number.isNaN(deadlineDate.getTime()))
 				return res
 					.status(400)
 					.json({ message: "有効な日付形式で締切を指定してください" });
@@ -172,7 +172,7 @@ router.put("/jobs/:id", async (req, res) => {
 router.delete("/jobs/:id", async (req, res) => {
 	try {
 		const jobId = Number(req.params.id);
-		if (isNaN(jobId) || jobId <= 0) {
+		if (Number.isNaN(jobId) || jobId <= 0) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 

@@ -13,12 +13,12 @@ fetch("http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4", {
 	}),
 }).catch(() => {});
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 // #endregion
 import dotenv from "dotenv";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
 
 // #region agent log
 fetch("http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4", {

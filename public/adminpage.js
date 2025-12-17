@@ -19,7 +19,7 @@ async function api(path, options = {}) {
 	return res.json();
 }
 
-function formatSalary(min, max) {
+function _formatSalary(min, max) {
 	if (!min && !max) return "給与非公開";
 	const f = (n) => Number(n).toLocaleString("ja-JP");
 	if (min && max) return `¥${f(min)} - ¥${f(max)}`;

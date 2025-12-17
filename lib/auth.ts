@@ -14,7 +14,7 @@ fetch("http://127.0.0.1:7242/ingest/0211b3fa-5b85-4f46-9efc-e02b8a837db4", {
 }).catch(() => {});
 
 // #endregion
-import crypto from "crypto";
+import crypto from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
 
 export type Role = "user" | "admin";
@@ -103,7 +103,7 @@ export function authMiddleware(required = false) {
 	return (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const cookies = parseCookies(req.headers.cookie);
-			const token = cookies["session"];
+			const token = cookies.session;
 			const payload = verifyToken(token);
 			if (!payload) {
 				if (required)

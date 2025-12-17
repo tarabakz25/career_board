@@ -9,7 +9,7 @@ router.get("/", (_req, res) => {
 
 router.get("/login", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (payload) return res.redirect("/career_dashboard");
 	res.render("login");
@@ -17,7 +17,7 @@ router.get("/login", (req, res) => {
 
 router.get("/register", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (payload) return res.redirect("/career_dashboard");
 	res.render("register");
@@ -25,7 +25,7 @@ router.get("/register", (req, res) => {
 
 router.get("/career_dashboard", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (!payload) return res.redirect("/login");
 	res.render("career_dashboard");
@@ -33,7 +33,7 @@ router.get("/career_dashboard", (req, res) => {
 
 router.get("/apply", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (!payload) return res.redirect("/login");
 	res.render("apply");
@@ -41,7 +41,7 @@ router.get("/apply", (req, res) => {
 
 router.get("/apply_form", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (!payload) return res.redirect("/login");
 	if (payload.role === "admin") return res.redirect("/career_dashboard");
@@ -50,7 +50,7 @@ router.get("/apply_form", (req, res) => {
 
 router.get("/mypage", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (!payload) return res.redirect("/login");
 	res.render("mypage");
@@ -58,7 +58,7 @@ router.get("/mypage", (req, res) => {
 
 router.get("/adminpage", (req, res) => {
 	const cookies = parseCookies(req.headers.cookie);
-	const token = cookies["session"];
+	const token = cookies.session;
 	const payload = verifyToken(token);
 	if (!payload) return res.redirect("/login");
 	if (payload.role !== "admin") return res.redirect("/career_dashboard");

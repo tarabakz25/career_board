@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
 		}
 		if (minSalary) {
 			const min = Number(minSalary);
-			if (isNaN(min) || min < 0) {
+			if (Number.isNaN(min) || min < 0) {
 				return res
 					.status(400)
 					.json({ message: "最低給与は有効な数値で指定してください" });
@@ -73,7 +73,7 @@ router.get("/:id", async (req, res) => {
 	try {
 		const { id } = req.params;
 		const jobId = Number(id);
-		if (isNaN(jobId) || jobId <= 0) {
+		if (Number.isNaN(jobId) || jobId <= 0) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 		const job = await prisma.job.findUnique({
@@ -106,7 +106,7 @@ router.post("/:id/apply", authMiddleware(true), async (req, res) => {
 				.json({ message: "管理者アカウントでは応募できません" });
 
 		const jobId = Number(req.params.id);
-		if (isNaN(jobId) || jobId <= 0) {
+		if (Number.isNaN(jobId) || jobId <= 0) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 
@@ -163,7 +163,7 @@ router.post("/:id/cancel", authMiddleware(true), async (req, res) => {
 	try {
 		const user = (req as any).user;
 		const jobId = Number(req.params.id);
-		if (isNaN(jobId) || jobId <= 0) {
+		if (Number.isNaN(jobId) || jobId <= 0) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 

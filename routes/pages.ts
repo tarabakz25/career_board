@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { parseCookies, verifyToken } from "../lib/auth";
+import { parseCookies, verifyToken } from "../lib/auth.js";
 
 const router = Router();
 

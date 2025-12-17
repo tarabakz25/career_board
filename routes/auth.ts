@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { prisma } from "../db";
+import { prisma } from "../db.js";
 import {
 	authMiddleware,
 	hashPassword,
 	setSessionCookie,
 	verifyPassword,
-} from "../lib/auth";
+} from "../lib/auth.js";
 
 const router = Router();
 

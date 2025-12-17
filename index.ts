@@ -37,6 +37,14 @@ let dbInitialized = false;
 
 async function initializeDatabase() {
 	if (dbInitialized) return;
+	
+	// Skip if DATABASE_URL is not set
+	if (!process.env.DATABASE_URL) {
+		console.warn("DATABASE_URL not set, skipping database initialization");
+		dbInitialized = true; // Mark as initialized to avoid repeated attempts
+		return;
+	}
+	
 	try {
 		await seedAdmin();
 		await seedJobs();
@@ -44,6 +52,7 @@ async function initializeDatabase() {
 		console.log("Database initialized successfully");
 	} catch (err) {
 		console.error("Failed to initialize database:", err);
+		dbInitialized = true; // Mark as initialized to avoid repeated attempts
 		// Don't throw - allow app to continue
 	}
 }

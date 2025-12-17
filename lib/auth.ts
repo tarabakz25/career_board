@@ -21,8 +21,8 @@ export function verifyPassword(password: string, salt: string, hash: string) {
 	try {
 		const derived = crypto.scryptSync(password, salt, 64).toString("hex");
 		return crypto.timingSafeEqual(
-			Buffer.from(hash, "hex"),
-			Buffer.from(derived, "hex"),
+			new Uint8Array(Buffer.from(hash, "hex")),
+			new Uint8Array(Buffer.from(derived, "hex")),
 		);
 	} catch {
 		return false;
@@ -49,7 +49,10 @@ export function verifyToken(token?: string): TokenPayload | null {
 			.digest("base64url");
 		if (
 			sig.length !== expected.length ||
-			!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+			!crypto.timingSafeEqual(
+				new Uint8Array(Buffer.from(sig)),
+				new Uint8Array(Buffer.from(expected)),
+			)
 		)
 			return null;
 		const payload = JSON.parse(

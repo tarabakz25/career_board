@@ -1,6 +1,6 @@
 # Career Board
 
-フルスタック課題「career-board」の実装です。Express + PostgreSQL バックエンドと、バニラ JS のフロントエンドで以下を満たしています。
+フルスタック課題「career-board」の実装です。Express + DynamoDB + S3 バックエンドと、バニラ JS のフロントエンドで以下を満たしています。
 
 - メール/パスワード認証（登録・ログイン・ログアウト）
 - 求人一覧表示 + 検索・フィルタ
@@ -20,8 +20,18 @@ bun install
 2. 環境変数を設定（`.env`）
 
 ```bash
-# PostgreSQL接続文字列
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/career_board
+# AWS共通設定（必須）
+AWS_REGION=ap-northeast-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+
+# DynamoDBテーブル名
+DYNAMODB_USERS_TABLE=career-board-users
+DYNAMODB_JOBS_TABLE=career-board-jobs
+DYNAMODB_APPLICATIONS_TABLE=career-board-applications
+
+# S3バケット（ファイルアップロード用）
+AWS_S3_BUCKET=your-s3-bucket-name
 
 # セッション暗号化キー（ランダムな文字列を設定）
 SESSION_SECRET=change-me
@@ -31,20 +41,18 @@ ADMIN_PASSWORD=admin123
 
 # サーバーポート
 PORT=3000
-
-# AWS S3設定（ファイルアップロード機能を使用する場合）
-AWS_REGION=ap-northeast-1
-AWS_ACCESS_KEY_ID=your-access-key-id
-AWS_SECRET_ACCESS_KEY=your-secret-access-key
-AWS_S3_BUCKET=your-bucket-name
 ```
 
-3. データベースを作成し、必要ならスキーマを流し込み
+3. DynamoDBテーブルを作成
 
 ```bash
-createdb career_board
-psql "$DATABASE_URL" -f db/schema.sql
+# DynamoDB_TABLES.mdを参照してテーブルを作成
+# または以下のスクリプトを実行
+chmod +x scripts/create-tables.sh
+./scripts/create-tables.sh
 ```
+
+詳細は `DynamoDB_TABLES.md` を参照してください。
 
 4. 起動
 
@@ -66,9 +74,11 @@ bun run dev
 
 - `index.ts` … アプリエントリ。ビューエンジン設定とルータのマウント。
 - `routes/` … `auth.ts`、`jobs.ts`、`admin.ts`、`pages.ts` で API とページルートを分離。
+- `lib/dynamodb.ts` … DynamoDB操作ライブラリ（CRUD関数）。
+- `lib/s3.ts` … S3ファイルアップロード/削除操作。
 - `views/` … `index.ejs`(LP), `login.ejs`, `dashboard.ejs`。
 - `public/` … フロントの静的アセット（`login.js`, `dashboard.js`, `styles.css` など）。
-- `db.ts` … PG 接続とテーブル作成/シード処理。
+- `db.ts` … シード処理（管理者アカウント、サンプル求人）。
 
 ## API ざっくり
 
@@ -163,55 +173,83 @@ AWS S3の環境変数が設定されていない場合、ファイルアップ�
 
 ### Vercel デプロイ
 
-#### 1. データベースのセットアップ
+#### 1. AWS DynamoDBテーブルのセットアップ
 
-以下のいずれかのマネージドPostgreSQLを使用：
+`DynamoDB_TABLES.md` の手順に従って3つのテーブルを作成：
+- `career-board-users` (GSI: EmailIndex)
+- `career-board-jobs`
+- `career-board-applications` (GSI: UserIdIndex, JobIdIndex)
 
-**Vercel Postgres（推奨）:**
 ```bash
-# Vercel ダッシュボードで Storage → Create Database → Postgres
-# 自動的に DATABASE_URL が環境変数に追加されます
+# AWS CLI で作成する場合
+aws dynamodb create-table --table-name career-board-users ...
+aws dynamodb create-table --table-name career-board-jobs ...
+aws dynamodb create-table --table-name career-board-applications ...
 ```
 
-**Neon（無料枠あり）:**
-- [neon.tech](https://neon.tech) でプロジェクトを作成
-- 接続文字列をコピー（形式: `postgresql://user:pass@host/db?sslmode=require`）
+#### 2. AWS S3バケットのセットアップ
 
-**Supabase:**
-- [supabase.com](https://supabase.com) でプロジェクトを作成
-- Database Settings から接続文字列を取得
+```bash
+aws s3 mb s3://your-career-board-bucket --region ap-northeast-1
+```
 
-#### 2. Vercel環境変数の設定
+#### 3. IAMユーザーとアクセスキーの作成
+
+DynamoDB + S3のアクセス権限を持つIAMユーザーを作成：
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:ap-northeast-1:*:table/career-board-*",
+        "arn:aws:dynamodb:ap-northeast-1:*:table/career-board-*/index/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::your-career-board-bucket/*"
+    }
+  ]
+}
+```
+
+#### 4. Vercel環境変数の設定
 
 Vercelダッシュボード → Settings → Environment Variables で以下を追加：
 
 ```
-DATABASE_URL=postgresql://user:password@host:5432/career_board?sslmode=require
-SESSION_SECRET=ランダムな長い文字列
-ADMIN_PASSWORD=管理者パスワード
-NODE_ENV=production
-
-# ファイルアップロード機能を使用する場合
 AWS_REGION=ap-northeast-1
 AWS_ACCESS_KEY_ID=your-access-key-id
 AWS_SECRET_ACCESS_KEY=your-secret-access-key
-AWS_S3_BUCKET=your-bucket-name
+
+DYNAMODB_USERS_TABLE=career-board-users
+DYNAMODB_JOBS_TABLE=career-board-jobs
+DYNAMODB_APPLICATIONS_TABLE=career-board-applications
+
+AWS_S3_BUCKET=your-career-board-bucket
+
+SESSION_SECRET=ランダムな長い文字列
+ADMIN_PASSWORD=管理者パスワード
+NODE_ENV=production
 ```
 
-#### 3. Prisma マイグレーション
-
-データベースのテーブルを作成：
-
-```bash
-# ローカルから実行（DATABASE_URLを本番DBのものに設定）
-npx prisma db push
-
-# または Vercel CLI で
-vercel env pull .env.production
-DATABASE_URL=$(grep DATABASE_URL .env.production | cut -d '=' -f2-) npx prisma db push
-```
-
-#### 4. デプロイ
+#### 5. デプロイ
 
 ```bash
 git push  # Vercel GitHubインテグレーションが自動デプロイ
@@ -219,18 +257,35 @@ git push  # Vercel GitHubインテグレーションが自動デプロイ
 vercel --prod
 ```
 
+初回デプロイ後、管理者アカウントとサンプルデータが自動的にシードされます。
+
 #### トラブルシューティング
 
-**エラー: `Can't reach database server at localhost:5432`**
-→ Vercelダッシュボードで`DATABASE_URL`環境変数が設定されているか確認
+**エラー: DynamoDBテーブルにアクセスできない**
+→ Vercelダッシュボードで`AWS_ACCESS_KEY_ID`と`AWS_SECRET_ACCESS_KEY`が正しく設定されているか確認
+→ IAMポリシーでDynamoDBテーブルへのアクセス権限が付与されているか確認
 
-**エラー: `no such table: users`**
-→ `prisma db push`でテーブルを作成
+**エラー: S3バケットにアクセスできない**
+→ `AWS_S3_BUCKET`環境変数が設定されているか確認
+→ IAMポリシーでS3バケットへのアクセス権限が付与されているか確認
 
 ---
 
-### Render デプロイ
+### その他のプラットフォーム（Render、AWS Lambda等）
 
-- `Database` は PostgreSQL を作成し、接続文字列を `DATABASE_URL` として環境変数に設定。
-- `Build Command`: `bun install && bun run build`
+同様にAWS認証情報とDynamoDBテーブル名を環境変数に設定してください：
+
+```
+AWS_REGION=ap-northeast-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+DYNAMODB_USERS_TABLE=career-board-users
+DYNAMODB_JOBS_TABLE=career-board-jobs
+DYNAMODB_APPLICATIONS_TABLE=career-board-applications
+AWS_S3_BUCKET=...
+SESSION_SECRET=...
+ADMIN_PASSWORD=...
+```
+
+- `Build Command`: `bun install`
 - `Start Command`: `bun run index.ts`

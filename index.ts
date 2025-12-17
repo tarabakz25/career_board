@@ -2,7 +2,6 @@
 import { appendFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import dotenv from "dotenv";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import { seedAdmin, seedJobs } from "./db.js";
@@ -37,7 +36,7 @@ const log = (
 };
 // #endregion
 
-dotenv.config();
+// Bun automatically loads .env files
 
 // #region agent log
 log(
@@ -92,11 +91,11 @@ async function initializeDatabase() {
 
 	if (dbInitialized) return;
 
-	// Skip if DATABASE_URL is not set
-	if (!process.env.DATABASE_URL) {
-		console.warn("DATABASE_URL not set, skipping database initialization");
+	// Skip if AWS credentials are not set
+	if (!process.env.AWS_REGION) {
+		console.warn("AWS_REGION not set, skipping database initialization");
 		// #region agent log
-		log("index.ts:55", "DATABASE_URL not set, skipping DB init", {}, "C");
+		log("index.ts:55", "AWS_REGION not set, skipping DB init", {}, "C");
 		// #endregion
 		dbInitialized = true; // Mark as initialized to avoid repeated attempts
 		return;

@@ -6,8 +6,7 @@
 	"scripts": {
 		"dev": "bun run index.ts",
 		"start": "bun run index.ts",
-		"build": "prisma generate",
-		"postinstall": "prisma generate",
+		"build": "echo 'Build complete'",
 		"build:css": "tailwindcss -i ./src/styles/input.css -o ./public/styles.css --minify",
 		"dev:css": "tailwindcss -i ./src/styles/input.css -o ./public/styles.css --watch"
 	},
@@ -25,14 +24,13 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@aws-sdk/client-dynamodb": "^3.953.0",
 		"@aws-sdk/client-s3": "^3.953.0",
+		"@aws-sdk/lib-dynamodb": "^3.953.0",
 		"@aws-sdk/s3-request-presigner": "^3.953.0",
-		"@prisma/client": "5",
 		"dotenv": "^17.2.3",
 		"ejs": "^3.1.10",
 		"express": "^5.2.1",
-		"multer": "^2.0.2",
-		"pg": "^8.16.3",
-		"prisma": "5"
+		"multer": "^2.0.2"
 	}
 }

@@ -1,6 +1,13 @@
 import { Router } from "express";
 import multer from "multer";
-import { prisma } from "../db.js";
+import {
+	createApplication,
+	deleteApplication,
+	getAllJobs,
+	getApplicationByUserId,
+	getApplicationsByJobId,
+	getJobById,
+} from "../lib/dynamodb.js";
 import { authMiddleware } from "../lib/auth.js";
 import { deleteFileFromS3, uploadFileToS3 } from "../lib/s3.js";
 
@@ -17,18 +24,28 @@ const upload = multer({
 router.get("/", async (req, res) => {
 	try {
 		const { search, location, minSalary } = req.query;
-		const where: any = {};
 
+		// DynamoDBから全件取得してフィルタリング（本番ではGSIを使用推奨）
+		let jobs = await getAllJobs();
+
+		// クライアント側フィルタリング
 		if (search) {
-			where.OR = [
-				{ title: { contains: search as string, mode: "insensitive" } },
-				{ company: { contains: search as string, mode: "insensitive" } },
-				{ description: { contains: search as string, mode: "insensitive" } },
-			];
+			const searchLower = (search as string).toLowerCase();
+			jobs = jobs.filter(
+				(job) =>
+					job.title.toLowerCase().includes(searchLower) ||
+					job.company.toLowerCase().includes(searchLower) ||
+					job.description?.toLowerCase().includes(searchLower),
+			);
 		}
+
 		if (location) {
-			where.location = { contains: location as string, mode: "insensitive" };
+			const locationLower = (location as string).toLowerCase();
+			jobs = jobs.filter((job) =>
+				job.location?.toLowerCase().includes(locationLower),
+			);
 		}
+
 		if (minSalary) {
 			const min = Number(minSalary);
 			if (Number.isNaN(min) || min < 0) {
@@ -36,28 +53,34 @@ router.get("/", async (req, res) => {
 					.status(400)
 					.json({ message: "最低給与は有効な数値で指定してください" });
 			}
-			where.OR = [
-				...(where.OR || []),
-				{ salaryMin: { gte: min } },
-				{ salaryMax: { gte: min } },
-			];
+			jobs = jobs.filter(
+				(job) =>
+					(job.salaryMin && job.salaryMin >= min) ||
+					(job.salaryMax && job.salaryMax >= min),
+			);
 		}
 
-		const jobs = await prisma.job.findMany({
-			where,
-			orderBy: [{ deadline: "asc" }, { id: "desc" }],
-			select: {
-				id: true,
-				title: true,
-				company: true,
-				location: true,
-				salaryMin: true,
-				salaryMax: true,
-				deadline: true,
-				description: true,
-			},
+		// ソート（締切昇順、作成日降順）
+		jobs.sort((a, b) => {
+			if (a.deadline && b.deadline) {
+				return a.deadline - b.deadline;
+			}
+			return b.createdAt - a.createdAt;
 		});
-		res.json(jobs);
+
+		// レスポンス形式を統一
+		const formattedJobs = jobs.map((job) => ({
+			id: job.jobId,
+			title: job.title,
+			company: job.company,
+			location: job.location,
+			salaryMin: job.salaryMin,
+			salaryMax: job.salaryMax,
+			deadline: job.deadline ? new Date(job.deadline).toISOString() : null,
+			description: job.description,
+		}));
+
+		res.json(formattedJobs);
 	} catch (error) {
 		console.error("Get jobs error:", error);
 		res.status(500).json({ message: "求人一覧の取得中にエラーが発生しました" });
@@ -67,12 +90,24 @@ router.get("/", async (req, res) => {
 router.get("/me/application", authMiddleware(true), async (req, res) => {
 	try {
 		const user = (req as any).user;
-		const application = await prisma.application.findUnique({
-			where: { userId: user.userId },
-			include: { job: true },
-		});
+		const application = await getApplicationByUserId(user.userId);
 		if (!application) return res.json({ job: null });
-		res.json({ job: application.job });
+
+		const job = await getJobById(application.jobId);
+		if (!job) return res.json({ job: null });
+
+		res.json({
+			job: {
+				id: job.jobId,
+				title: job.title,
+				company: job.company,
+				location: job.location,
+				salaryMin: job.salaryMin,
+				salaryMax: job.salaryMax,
+				deadline: job.deadline ? new Date(job.deadline).toISOString() : null,
+				description: job.description,
+			},
+		});
 	} catch (error) {
 		console.error("Get application error:", error);
 		res.status(500).json({ message: "応募情報の取得中にエラーが発生しました" });
@@ -82,25 +117,23 @@ router.get("/me/application", authMiddleware(true), async (req, res) => {
 router.get("/:id", async (req, res) => {
 	try {
 		const { id } = req.params;
-		const jobId = Number(id);
-		if (Number.isNaN(jobId) || jobId <= 0) {
+		if (!id) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
-		const job = await prisma.job.findUnique({
-			where: { id: jobId },
-			select: {
-				id: true,
-				title: true,
-				company: true,
-				location: true,
-				salaryMin: true,
-				salaryMax: true,
-				deadline: true,
-				description: true,
-			},
-		});
+
+		const job = await getJobById(id);
 		if (!job) return res.status(404).json({ message: "求人が見つかりません" });
-		res.json(job);
+
+		res.json({
+			id: job.jobId,
+			title: job.title,
+			company: job.company,
+			location: job.location,
+			salaryMin: job.salaryMin,
+			salaryMax: job.salaryMax,
+			deadline: job.deadline ? new Date(job.deadline).toISOString() : null,
+			description: job.description,
+		});
 	} catch (error) {
 		console.error("Get job error:", error);
 		res.status(500).json({ message: "求人情報の取得中にエラーが発生しました" });
@@ -119,8 +152,8 @@ router.post(
 					.status(403)
 					.json({ message: "管理者アカウントでは応募できません" });
 
-			const jobId = Number(req.params.id);
-			if (Number.isNaN(jobId) || jobId <= 0) {
+			const jobId = req.params.id;
+			if (!jobId) {
 				return res.status(400).json({ message: "無効な求人IDです" });
 			}
 
@@ -136,19 +169,17 @@ router.post(
 					.status(400)
 					.json({ message: "有効な電話番号を入力してください" });
 
-			const job = await prisma.job.findUnique({ where: { id: jobId } });
+			const job = await getJobById(jobId);
 			if (!job)
 				return res.status(404).json({ message: "求人が見つかりません" });
 
-			if (job.deadline && new Date(job.deadline) < new Date()) {
+			if (job.deadline && job.deadline < Date.now()) {
 				return res
 					.status(400)
 					.json({ message: "この求人は応募期限を過ぎています" });
 			}
 
-			const existing = await prisma.application.findUnique({
-				where: { userId: user.userId },
-			});
+			const existing = await getApplicationByUserId(user.userId);
 			if (existing) {
 				if (existing.jobId === jobId)
 					return res.json({ message: "既に応募済みです" });
@@ -178,16 +209,14 @@ router.post(
 				}
 			}
 
-			await prisma.application.create({
-				data: {
-					userId: user.userId,
-					jobId,
-					fullName: fullName.trim(),
-					phone: phone.trim(),
-					coverLetter: coverLetter?.trim() || null,
-					resumeUrl,
-					resumeKey,
-				},
+			await createApplication({
+				userId: user.userId,
+				jobId,
+				fullName: fullName.trim(),
+				phone: phone.trim(),
+				coverLetter: coverLetter?.trim() || undefined,
+				resumeUrl: resumeUrl || undefined,
+				resumeKey: resumeKey || undefined,
 			});
 			res.json({ message: "応募が完了しました" });
 		} catch (error) {
@@ -200,15 +229,13 @@ router.post(
 router.post("/:id/cancel", authMiddleware(true), async (req, res) => {
 	try {
 		const user = (req as any).user;
-		const jobId = Number(req.params.id);
-		if (Number.isNaN(jobId) || jobId <= 0) {
+		const jobId = req.params.id;
+		if (!jobId) {
 			return res.status(400).json({ message: "無効な求人IDです" });
 		}
 
-		const existing = await prisma.application.findFirst({
-			where: { userId: user.userId, jobId },
-		});
-		if (!existing)
+		const existing = await getApplicationByUserId(user.userId);
+		if (!existing || existing.jobId !== jobId)
 			return res
 				.status(400)
 				.json({ message: "この求人への応募履歴がありません" });
@@ -223,7 +250,7 @@ router.post("/:id/cancel", authMiddleware(true), async (req, res) => {
 			}
 		}
 
-		await prisma.application.delete({ where: { id: existing.id } });
+		await deleteApplication(existing.applicationId);
 		res.json({ message: "応募を取り消しました" });
 	} catch (error) {
 		console.error("Cancel error:", error);

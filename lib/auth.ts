@@ -4,7 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 export type Role = "user" | "admin";
 
 export type TokenPayload = {
-	userId: number;
+	userId: string;
 	role: Role;
 	exp: number;
 };
@@ -59,7 +59,7 @@ export function verifyToken(token?: string): TokenPayload | null {
 			Buffer.from(base, "base64url").toString(),
 		) as TokenPayload;
 		if (
-			typeof payload.userId !== "number" ||
+			typeof payload.userId !== "string" ||
 			typeof payload.role !== "string" ||
 			typeof payload.exp !== "number"
 		)

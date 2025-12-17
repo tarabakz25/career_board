@@ -16,6 +16,7 @@
 		"@tailwindcss/cli": "^4.1.17",
 		"@types/bun": "latest",
 		"@types/express": "^5.0.6",
+		"@vercel/node": "^5.5.15",
 		"prettier": "3.7.3",
 		"tailwindcss": "^4.1.17"
 	},
